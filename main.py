@@ -17,9 +17,9 @@ def get_books_urls_from_category(category_url, page_count):
         response.raise_for_status()
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'lxml')
-            books_table_container = soup.find_all('table', class_='d_book')
+            books_table_container = soup.select('table.d_book')
             for book in books_table_container:
-                book_postfix_url = book.find('div', class_='bookimage').find('a')['href']
+                book_postfix_url = book.select_one('div.bookimage a')['href']
                 books_urls.append(urljoin(url, book_postfix_url))
 
     return books_urls
@@ -60,9 +60,9 @@ def download_comment(url):
     comments = []
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'lxml')
-        comments_block = soup.find_all('div', class_='texts')
+        comments_block = soup.select('div.texts span.black')
         for comment in comments_block:
-            comments.append(comment.find("span", class_='black').text)
+            comments.append(comment.text)
     return comments
 
 
@@ -74,17 +74,17 @@ def receive_book_data(url):
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'lxml')
 
-        book['title'] = soup.find('h1').text.split("::")[0].strip()
-        book['author'] = soup.find('h1').text.split("::")[1].strip()
+        book['title'] = soup.select_one('h1').text.split("::")[0].strip()
+        book['author'] = soup.select_one('h1').text.split("::")[1].strip()
 
-        image_url = urljoin(url, soup.find('div', class_='bookimage').find('img')['src'])
+        image_url = urljoin(url, soup.select_one('div.bookimage img')['src'])
         book['image_src'] = download_image(image_url, image_url.split('/')[-1])
 
         book['book_path'] = download_txt(f'http://tululu.org/txt.php?id={book_id}', f'{book_id}_{book["title"]}.txt')
 
         book['comments'] = download_comment(url)
 
-        genres_block = soup.find('span', class_='d_book').find_all('a')
+        genres_block = soup.select('span.d_book a')
         book['genres'] = []
 
         for genre in genres_block:
