@@ -140,4 +140,9 @@ cython_debug/
 # Books file
 /books
 /images
-books.json
+*.json
+*.txt
+*.gif
+*.png
+*.jpg
+*.jpeg
