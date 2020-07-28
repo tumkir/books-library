@@ -29,11 +29,14 @@ def get_books_urls_from_category(category_url, start_page, end_page):
 def download_txt(url, filename, dest_folder='.'):
     response = requests.get(url, allow_redirects=False)
     response.raise_for_status()
-    Path(f'{dest_folder}/books').mkdir(parents=True, exist_ok=True)
-    filepath = os.path.join(dest_folder, 'books/', sanitize_filename(filename))
-    with open(filepath, 'w') as book:
-        book.write(response.text)
-    return filepath
+    if response.status_code == 200:
+        Path(f'{dest_folder}/books').mkdir(parents=True, exist_ok=True)
+        filepath = os.path.join(dest_folder, 'books/', sanitize_filename(filename))
+        with open(filepath, 'w') as book:
+            book.write(response.text)
+        return filepath
+    else:
+        return ('.txt файла книги нет')
 
 
 def download_image(url, filename, dest_folder='.'):
@@ -96,8 +99,9 @@ def create_json_file(books_data, json_path='.'):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Программа позволяет скачать книги с сайта http://tululu.org/')
-    parser.add_argument('--start_page', default='1', type=int, help='С какой страницы категории начинать скачивание книг')
+    parser.add_argument('--start_page', default=1, type=int, help='С какой страницы категории начинать скачивание книг')
     parser.add_argument('--end_page', type=int, help='До какой странице категории скачивать книги')
+    parser.add_argument('--category_id', default=55, type=int, help='ID категории (жанра)')
     parser.add_argument('--dest_folder', default='.', type=str, help='Путь к каталогу с результатами парсинга: картинкам, книгам, JSON')
     parser.add_argument('--skip_imgs', action='store_true', help='Не скачивать картинки')
     parser.add_argument('--skip_txt', action='store_true', help='Не скачивать книги')
@@ -114,11 +118,11 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    start_page, end_page = args.start_page, args.end_page
+    start_page, end_page, category_id = args.start_page, args.end_page, args.category_id
     dest_folder, json_path = args.dest_folder, args.json_path
     skip_imgs, skip_txt = args.skip_imgs, args.skip_txt
 
-    category_url = 'http://tululu.org/l55/'
+    category_url = f'http://tululu.org/l{category_id}/'
 
     if not end_page:
         response = requests.get(f'{category_url}{start_page}', allow_redirects=False)
