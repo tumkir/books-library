@@ -133,7 +133,7 @@ if __name__ == '__main__':
     books_urls = get_books_urls_from_category(category_url, start_page, end_page)
     books_data = []
 
-    for book_url in tqdm(books_urls, desc='Скачиваем книги и данные о них:'):
+    for book_url in tqdm(books_urls, desc='Скачиваем книги и данные о них'):
         books_data.append(receive_book_data(book_url, skip_imgs, skip_txt, dest_folder))
 
     if json_path:
