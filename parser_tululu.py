@@ -7,12 +7,13 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
+from tqdm import tqdm, trange
 
 
 def get_books_urls_from_category(category_url, start_page, end_page):
     books_urls = []
 
-    for page in range(start_page, end_page + 1):
+    for page in trange(start_page, end_page + 1, desc='Получаем ссылки на книги со страниц жанра'):
         url = f'{category_url}{page}'
         response = requests.get(url, allow_redirects=False)
         response.raise_for_status()
@@ -21,7 +22,6 @@ def get_books_urls_from_category(category_url, start_page, end_page):
         for book in books_table_container:
             book_postfix_url = book.select_one('div.bookimage a')['href']
             books_urls.append(urljoin(url, book_postfix_url))
-        print(f'Собрали ссылки на книги с {page} страницы категории')
 
     return books_urls
 
@@ -85,8 +85,6 @@ def receive_book_data(url, skip_imgs=False, skip_txt=False, dest_folder='.'):
     for genre in genres_block:
         book['genres'].append(genre.text)
 
-    print(f'Скачана книга: {book["title"]} — {book["author"]}')
-
     return dict(book)
 
 
@@ -135,7 +133,7 @@ if __name__ == '__main__':
     books_urls = get_books_urls_from_category(category_url, start_page, end_page)
     books_data = []
 
-    for book_url in books_urls:
+    for book_url in tqdm(books_urls, desc='Скачиваем книги и данные о них:'):
         books_data.append(receive_book_data(book_url, skip_imgs, skip_txt, dest_folder))
 
     if json_path:
