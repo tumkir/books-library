@@ -26,12 +26,13 @@ pip install -r requirements.txt
 ### Примеры запуска
 
 Скачиваем книги только с первой страницы жанра *Морские приключения* ([http://tululu.org/l54/]), **.txt** книг, обложки и **.json** файл складываем в папку `media`:
-
-`python3 parser_tululu.py --end_page 1 --dest_folder ./media/ --category_id 54`
-
+```bash
+python3 parser_tululu.py --end_page 1 --dest_folder ./media/ --category_id 54
+```
 Скачиваем книги со страницы 10, 11, 12 жанра *Научная фантастика* ([http://tululu.org/l55/]), **.txt** книги положить в папку `book_data`, обложки не скачивать, а **.json** файл сохранить в папку `json`:
-
-`python3 parser_tululu.py --start_page 10 --end_page 12 --dest_folder ./book_data/ --skip_imgs --json_path ./json`
+```bash
+python3 parser_tululu.py --start_page 10 --end_page 12 --dest_folder ./book_data/ --skip_imgs --json_path ./json
+```
 
 ### Цель проекта
 
