@@ -57,11 +57,9 @@ def download_image(url, filename, dest_folder='.'):
 
 def download_comment(url):
     response = request_without_redirect(url)
-    comments = []
     soup = BeautifulSoup(response.text, 'lxml')
     comments_block = soup.select('div.texts span.black')
-    for comment in comments_block:
-        comments.append(comment.text)
+    comments = [comment.text for comment in comments_block]
     return comments
 
 
@@ -71,8 +69,7 @@ def receive_book_data(url, skip_imgs=False, skip_txt=False, dest_folder='.'):
     response = request_without_redirect(url)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    book['title'] = soup.select_one('h1').text.split('::')[0].strip()
-    book['author'] = soup.select_one('h1').text.split('::')[1].strip()
+    book['title'], book['author'] = soup.select_one('h1').text.split(' \xa0 :: \xa0 ')
 
     if not skip_imgs:
         image_url = urljoin(url, soup.select_one('div.bookimage img')['src'])
@@ -84,11 +81,9 @@ def receive_book_data(url, skip_imgs=False, skip_txt=False, dest_folder='.'):
     book['comments'] = download_comment(url)
 
     genres_block = soup.select('span.d_book a')
-    book['genres'] = []
-    for genre in genres_block:
-        book['genres'].append(genre.text)
+    book['genres'] = [genre.text for genre in genres_block]
 
-    return dict(book)
+    return book
 
 
 def create_json_file(books_data, json_path='.'):
