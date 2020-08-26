@@ -10,13 +10,19 @@ from pathvalidate import sanitize_filename
 from tqdm import tqdm, trange
 
 
+def request_without_redirect(url):
+    response = requests.get(url, allow_redirects=False)
+    if response.status_code != 200:
+        raise requests.HTTPError(f'Код ответа HTTP {response.status_code}. Требуется 200.')
+    return response
+
+
 def get_books_urls_from_category(category_url, start_page, end_page):
     books_urls = []
 
     for page in trange(start_page, end_page + 1, desc='Получаем ссылки на книги со страниц жанра'):
         url = f'{category_url}{page}'
-        response = requests.get(url, allow_redirects=False)
-        response.raise_for_status()
+        response = request_without_redirect(url)
         soup = BeautifulSoup(response.text, 'lxml')
         books_table_container = soup.select('table.d_book')
         for book in books_table_container:
@@ -28,20 +34,20 @@ def get_books_urls_from_category(category_url, start_page, end_page):
 
 def download_txt(url, filename, dest_folder='.'):
     response = requests.get(url, allow_redirects=False)
-    response.raise_for_status()
-    if response.status_code == 200:
-        Path(f'{dest_folder}/books').mkdir(parents=True, exist_ok=True)
-        filepath = os.path.join(dest_folder, 'books/', sanitize_filename(filename))
-        with open(filepath, 'w') as book:
-            book.write(response.text)
-        return filepath
-    else:
-        return ('.txt файла книги нет')
+    try:
+        response = request_without_redirect(url)
+    except requests.HTTPError:
+        return
+
+    Path(f'{dest_folder}/books').mkdir(parents=True, exist_ok=True)
+    filepath = os.path.join(dest_folder, 'books/', sanitize_filename(filename))
+    with open(filepath, 'w') as book:
+        book.write(response.text)
+    return filepath
 
 
 def download_image(url, filename, dest_folder='.'):
-    response = requests.get(url, allow_redirects=False)
-    response.raise_for_status()
+    response = request_without_redirect(url)
     Path(f'{dest_folder}/images').mkdir(parents=True, exist_ok=True)
     filepath = os.path.join(dest_folder, 'images/', sanitize_filename(filename))
     with open(filepath, 'wb') as image:
@@ -50,22 +56,19 @@ def download_image(url, filename, dest_folder='.'):
 
 
 def download_comment(url):
-    response = requests.get(url, allow_redirects=False)
-    response.raise_for_status()
+    response = request_without_redirect(url)
     comments = []
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'lxml')
-        comments_block = soup.select('div.texts span.black')
-        for comment in comments_block:
-            comments.append(comment.text)
+    soup = BeautifulSoup(response.text, 'lxml')
+    comments_block = soup.select('div.texts span.black')
+    for comment in comments_block:
+        comments.append(comment.text)
     return comments
 
 
 def receive_book_data(url, skip_imgs=False, skip_txt=False, dest_folder='.'):
     book_id = url.split('/')[-2][1:]
     book = {}
-    response = requests.get(url, allow_redirects=False)
-    response.raise_for_status()
+    response = request_without_redirect(url)
     soup = BeautifulSoup(response.text, 'lxml')
 
     book['title'] = soup.select_one('h1').text.split('::')[0].strip()
@@ -123,8 +126,7 @@ if __name__ == '__main__':
     category_url = f'http://tululu.org/l{category_id}/'
 
     if not end_page:
-        response = requests.get(f'{category_url}{start_page}', allow_redirects=False)
-        response.raise_for_status()
+        response = request_without_redirect(f'{category_url}{start_page}')
         soup = BeautifulSoup(response.text, 'lxml')
         end_page = int(soup.select('a.npage')[-1].text)
         if end_page < start_page:
