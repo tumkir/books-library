@@ -126,11 +126,19 @@ if __name__ == '__main__':
         if end_page < start_page:
             end_page = start_page
 
-    books_urls = get_books_urls_from_category(category_url, start_page, end_page)
+    try:
+        books_urls = get_books_urls_from_category(category_url, start_page, end_page)
+    except requests.exceptions.ConnectionError:
+        print('Ошибка сети. Проверьте подключение к интернету и попробуйте скачать книги позже')
+        raise SystemExit()
     books_data = []
 
     for book_url in tqdm(books_urls, desc='Скачиваем книги и данные о них'):
-        books_data.append(receive_book_data(book_url, skip_imgs, skip_txt, dest_folder))
+        try:
+            books_data.append(receive_book_data(book_url, skip_imgs, skip_txt, dest_folder))
+        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+            print('Ошибка сети. Проверьте подключение к интернету, доступность сайта и попробуйте скачать книги позже')
+            raise SystemExit()
 
     if json_path:
         create_json_file(books_data, json_path)
