@@ -1,7 +1,9 @@
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
+from time import sleep
 from urllib.parse import urljoin
 
 import requests
@@ -137,8 +139,9 @@ if __name__ == '__main__':
         try:
             books_data.append(receive_book_data(book_url, skip_imgs, skip_txt, dest_folder))
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
-            print('Ошибка сети. Проверьте подключение к интернету, доступность сайта и попробуйте скачать книги позже')
-            raise SystemExit()
+            tqdm.write(f'Ошибка сети. Книга {book_url} пропущена, пробуем скачать следующую книгу', file=sys.stderr)
+            sleep(5)
+            continue
 
     if json_path:
         create_json_file(books_data, json_path)
