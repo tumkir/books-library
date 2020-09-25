@@ -99,10 +99,10 @@ def parse_args():
     parser.add_argument('--start_page', default=1, type=int, help='С какой страницы категории начинать скачивание книг')
     parser.add_argument('--end_page', type=int, help='До какой странице категории скачивать книги')
     parser.add_argument('--category_id', default=55, type=int, help='ID категории (жанра)')
-    parser.add_argument('--dest_folder', default='.', type=str, help='Путь к каталогу с результатами парсинга: картинкам, книгам, JSON')
-    parser.add_argument('--skip_imgs', action='store_true', help='Не скачивать картинки')
-    parser.add_argument('--skip_txt', action='store_true', help='Не скачивать книги')
-    parser.add_argument('--json_path', type=str, help='Cвой путь к *.json файлу с результатами')
+    parser.add_argument('--dest_folder', default='.', type=str, help='Путь к папке с результатами парсинга: обложкам, текстам книг, JSON')
+    parser.add_argument('--skip_imgs', action='store_true', help='Не скачивать обложки книг')
+    parser.add_argument('--skip_txt', action='store_true', help='Не скачивать текст книг')
+    parser.add_argument('--json_path', type=str, help='Путь до папки, в которой создастся .json файл с результатами')
 
     args = parser.parse_args()
 
@@ -143,7 +143,4 @@ if __name__ == '__main__':
             sleep(5)
             continue
 
-    if json_path:
-        create_json_file(books_data, json_path)
-    else:
-        create_json_file(books_data, dest_folder)
+    create_json_file(books_data, json_path or dest_folder)
