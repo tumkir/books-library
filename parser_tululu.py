@@ -101,7 +101,7 @@ def parse_args():
     parser.add_argument('--category_id', default=55, type=int, help='ID категории (жанра)')
     parser.add_argument('--dest_folder', default='.', type=str, help='Путь к папке с результатами парсинга: обложкам, текстам книг, JSON')
     parser.add_argument('--skip_imgs', action='store_true', help='Не скачивать обложки книг')
-    parser.add_argument('--skip_txt', action='store_true', help='Не скачивать текст книг')
+    parser.add_argument('--skip_txt', action='store_true', help='Не скачивать тексты книг')
     parser.add_argument('--json_path', type=str, help='Путь до папки, в которой создастся .json файл с результатами')
 
     args = parser.parse_args()
