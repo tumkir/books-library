@@ -77,7 +77,7 @@ def receive_book_data(url, skip_imgs=False, skip_txt=False, dest_folder='.'):
         book['image_src'] = download_image(image_url, image_url.split('/')[-1], dest_folder)
 
     if not skip_txt:
-        book['book_path'] = download_txt(f'http://tululu.org/txt.php?id={book_id}', f'{book_id}_{book["title"]}.txt', dest_folder)
+        book['book_path'] = download_txt(f'https://tululu.org/txt.php?id={book_id}', f'{book_id}_{book["title"]}.txt', dest_folder)
 
     book['comments'] = download_comment(url)
 
@@ -95,7 +95,7 @@ def create_json_file(books_data, json_path='.'):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Программа позволяет скачать книги с сайта http://tululu.org/')
+    parser = argparse.ArgumentParser(description='Программа позволяет скачать книги с сайта https://tululu.org/')
     parser.add_argument('--start_page', default=1, type=int, help='С какой страницы категории начинать скачивание книг')
     parser.add_argument('--end_page', type=int, help='До какой странице категории скачивать книги')
     parser.add_argument('--category_id', default=55, type=int, help='ID категории (жанра)')
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     dest_folder, json_path = args.dest_folder, args.json_path
     skip_imgs, skip_txt = args.skip_imgs, args.skip_txt
 
-    category_url = f'http://tululu.org/l{category_id}/'
+    category_url = f'https://tululu.org/l{category_id}/'
 
     if not end_page:
         response = request_without_redirect(f'{category_url}{start_page}')
