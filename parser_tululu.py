@@ -28,7 +28,7 @@ def get_books_urls_from_category(category_url, start_page, end_page):
         soup = BeautifulSoup(response.text, 'lxml')
         books_table_container = soup.select('table.d_book')
         book_postfix_urls = [book.select_one('div.bookimage a')['href'] for book in books_table_container]
-        books_urls = [urljoin(url, book_postfix_url) for book_postfix_url in book_postfix_urls]
+        books_urls += [urljoin(url, book_postfix_url) for book_postfix_url in book_postfix_urls]
 
     return books_urls
 
